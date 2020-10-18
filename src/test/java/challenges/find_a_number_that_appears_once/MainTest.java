@@ -1,11 +1,14 @@
 package challenges.find_a_number_that_appears_once;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MainTest {
@@ -35,9 +38,6 @@ class MainTest {
         assertEquals(1, Main.findUniqueNumberInArray(numbers1));
         assertEquals(2, Main.findUniqueNumberInArray(numbers2));
         assertEquals(3, Main.findUniqueNumberInArray(numbers3));
-
-
-
     }
 
     @AfterAll
