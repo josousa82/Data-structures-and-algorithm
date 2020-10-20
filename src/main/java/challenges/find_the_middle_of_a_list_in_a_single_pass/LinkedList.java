@@ -12,18 +12,11 @@ public class LinkedList {
 
     public static void main(String[] args) {
        LinkedList llist = new LinkedList();
-        for (int i = 0; i > 5; --i) {
+        for (int i = 10; i > 5; --i) {
             llist.push(i);
             llist.printNext();
             llist.printMiddle(llist.head);
         }
-//       llist.head = new Node(1);
-//       Node second = new Node(2);
-//       Node third = new Node(3);
-//       llist.head.next = second;
-//       second.next = third;
-//       llist.printNext();
-//       llist.printMiddle(llist.head);
     }
 
     public void push(int data){
@@ -45,7 +38,7 @@ public class LinkedList {
          Node fast_ptr = head;
 
          if(head != null) {
-             while (fast_ptr != null && slow_ptr.next != null) {
+             while (fast_ptr != null && fast_ptr.next != null) {
                     fast_ptr = fast_ptr.next.next;
                     slow_ptr = slow_ptr.next;
              }
