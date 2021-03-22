@@ -1,6 +1,6 @@
 package challenges.find_a_number_that_appears_once;
 
-import lombok.extern.slf4j.Slf4j;
+//import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * in package - challenges.find_a_number_that_appears_once
  **/
 
-@Slf4j
+//@Slf4j
 public class Main {
     public static void main(String[] args) {
 //        log.info("teste log");

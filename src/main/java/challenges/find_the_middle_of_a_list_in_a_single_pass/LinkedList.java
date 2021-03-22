@@ -17,6 +17,7 @@ public class LinkedList {
             llist.printNext();
             llist.printMiddle(llist.head);
         }
+
     }
 
     public void push(int data){
@@ -54,7 +55,5 @@ public class LinkedList {
             this.data = data;
         }
     }
-
-
 
 }

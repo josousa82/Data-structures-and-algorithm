@@ -1,4 +1,4 @@
-package challenges.palindromes;
+package challenges.strings_practice.palindromes;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
