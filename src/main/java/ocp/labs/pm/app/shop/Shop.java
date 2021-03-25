@@ -23,7 +23,6 @@ import ocp.labs.pm.data.Rating;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -40,11 +39,11 @@ public class Shop {
         Product p1 = pm.createProduct(101, "Tea", BigDecimal.valueOf(153.57), Rating.NOT_RATED);
         pm.printProductReport();
         pm.reviewProduct(p1, Rating.FOUR_STAR, "Nice hot cup of tea.");
+        pm.reviewProduct(p1, Rating.TWO_STAR, "Could be nicer");
+        pm.reviewProduct(p1, Rating.FIVE_STAR, "Just a cup of tea.");
+        pm.reviewProduct(p1, Rating.FOUR_STAR, "Bad cup of tea.");
         pm.printProductReport();
 
-        System.out.println("Integer.parseInt(\"10\", 2) = " + Integer.parseInt("10", 2));
-        ArrayList<String> test = new ArrayList<>();
-        test.removeIf((var s) -> s.equals("a") );
 
 
 //        Product p2 = pm.createProduct(102, "Coffee", BigDecimal.valueOf(1.99), Rating.FOUR_STAR);
