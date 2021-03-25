@@ -23,6 +23,7 @@ import ocp.labs.pm.data.Rating;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
 import java.util.Locale;
 
 /**
@@ -37,17 +38,29 @@ public class Shop {
         ProductManager pm  = new ProductManager(Locale.UK);
 
         Product p1 = pm.createProduct(101, "Tea", BigDecimal.valueOf(153.57), Rating.NOT_RATED);
-        pm.printProductReport();
+        pm.printProductReport(p1);
         pm.reviewProduct(p1, Rating.FOUR_STAR, "Nice hot cup of tea.");
         pm.reviewProduct(p1, Rating.TWO_STAR, "Could be nicer");
         pm.reviewProduct(p1, Rating.FIVE_STAR, "Just a cup of tea.");
         pm.reviewProduct(p1, Rating.FOUR_STAR, "Bad cup of tea.");
-        pm.printProductReport();
+        pm.printProductReport(p1);
+
+        Product p2 = pm.createProduct(102, "Coffee", BigDecimal.valueOf(1.99), Rating.FOUR_STAR);
+        p2 = pm.reviewProduct(p2, Rating.FOUR_STAR, "Very good");
+        p2 = pm.reviewProduct(p2, Rating.THREE_STAR, "Fair");
+        p2 = pm.reviewProduct(p2, Rating.ONE_STAR, "Very Bad");
+        p2 = pm.reviewProduct(p2, Rating.NOT_RATED, "");
+        pm.printProductReport(p2);
+
+        Product p3 = pm.createProduct(103, "Cake", BigDecimal.valueOf(1.99), Rating.FOUR_STAR, LocalDateTime.now().plusDays(2));
+        p3 = pm.reviewProduct(p3, Rating.FOUR_STAR, "good");
+        p3 = pm.reviewProduct(p3, Rating.ONE_STAR, "bad");
+        p3 = pm.reviewProduct(p3, Rating.ONE_STAR, "Very Bad");
+        p3 = pm.reviewProduct(p3, Rating.FIVE_STAR, "Very good");
+        pm.printProductReport(p3);
 
 
 
-//        Product p2 = pm.createProduct(102, "Coffee", BigDecimal.valueOf(1.99), Rating.FOUR_STAR);
-//        Product p3 = pm.createProduct( 103,  "Cake", BigDecimal.valueOf(3.99), Rating.THREE_STAR, LocalDate.now().plusDays(5));
 //        Product p4 = pm.createProduct( 104,  "Cake Red Velvet", BigDecimal.valueOf(4.99), Rating.FIVE_STAR, LocalDate.now());
 //        Product p5 = p3.applyRating(Rating.THREE_STAR);
 //        Product p6 = pm.createProduct(106, "Chocolate", BigDecimal.valueOf(3.99), Rating.FIVE_STAR);

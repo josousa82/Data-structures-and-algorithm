@@ -22,9 +22,7 @@ import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Created by sousaJ on 20/03/2021
@@ -37,8 +35,9 @@ public class ProductManager {
     private DateTimeFormatter dateTimeFormatter;
     private NumberFormat currencyFormat;
 
-    private Product product;
-    private Review[] reviews = new Review[5];
+//    private Product product;
+//    private Review[] reviews = new Review[5];
+    private HashMap<Product, List<Review>> products = new HashMap<>();
 
 
     public ProductManager(Locale l) {
@@ -49,54 +48,84 @@ public class ProductManager {
 
     }
 
-    public void printProductReport() {
+    public Product findProductById(int id){
+        Set<Product> productsSet = products.keySet();
+        Product result = null;
+
+        for (Product p : productsSet){
+            if(p.getId() == id){
+                result = p;
+                break;
+            }
+        }
+        return result;
+    }
+
+    public void printProductReport(int id){
+        printProductReport(findProductById(id));
+    }
+
+    public void printProductReport(Product product) {
         StringBuilder txt = new StringBuilder();
+        List<Review> reviews = products.get(product);
+
         txt.append(MessageFormat.format(resourceBundle.getString("product"), product.getName(),
                                         currencyFormat.format(product.getPrice()), product.getRating().getStars(),
                                         dateTimeFormatter.format(product.getBestBefore()))).append("\n");
-        if(reviews[0] == null) txt.append(resourceBundle.getString("no.reviews")).append("\n");
 
-        for (Review review : reviews) {
-            if (review == null) {
-                break;
-            }
-            txt.append(MessageFormat.format(resourceBundle.getString("review"), review.getRating().getStars(), review.getComments())).append("\n");
-        }
+        if(reviews.isEmpty()) txt.append(resourceBundle.getString("no.reviews")).append("\n");
+
+        Collections.sort(reviews);
+
+        reviews.forEach(review -> txt.append(MessageFormat.format(resourceBundle.getString("review"),
+                                                                  review.getRating().getStars(),
+                                                                  review.getComments())).append("\n"));
+//        for (Review review : reviews) {
+//            txt.append(MessageFormat.format(resourceBundle.getString("review"),
+//                                            review.getRating().getStars(),
+//                                            review.getComments())).append("\n");
+//        }
 
         System.out.println(txt);
     }
 
     public Product createProduct(int id, String name, BigDecimal price, Rating rating, LocalDateTime bestBefore) {
-        product = new Food(id, name, price, rating, bestBefore);
+
+        Product product = new Food(id, name, price, rating, bestBefore);
+        products.putIfAbsent(product, new ArrayList<>());
         return product;
     }
 
     public Product createProduct(int id, String name, BigDecimal price, Rating rating) {
-        product = new Drink(id, name, price, rating);
+        Product product = new Drink(id, name, price, rating);
+        products.putIfAbsent(product, new ArrayList<>());
         return product;
     }
 
+    public Product reviewProduct(int id, Rating rating, String comments){
+        return reviewProduct(findProductById(id), rating, comments);
+    }
     // A more generic alternative  design of this app could  have used a type Rateable instead of product
     // for both instance variable and method argument (for example an abstract class could contain the implementation)
     // to enable the app to create reviews of any other objects that implement the Rateable interface
     public Product reviewProduct(Product product, Rating rating, String comments) {
 
-        if (reviews[reviews.length - 1] != null) {
-            reviews = Arrays.copyOf(reviews, reviews.length + 5);
-        }
-        int sum = 0, i = 0;
-        boolean reviewed = false;
+        List<Review> reviews = products.get(product);
+        if(products.remove(product, reviews)){
 
-        while (i < reviews.length && !reviewed) {
-            if (reviews[i] == null) {
-                reviews[i] = new Review(rating, comments);
-                reviewed = true;
-            }
-            sum += reviews[i].getRating().ordinal();
-            i++;
+        }
+        reviews.add(new Review(rating, comments));
+
+        int sum = 0;
+
+//      sum = reviews.stream().mapToInt(value -> value.getRating().ordinal()).sum();
+
+        for(Review review : reviews){
+            sum += review.getRating().ordinal();
         }
 
-        this.product = product.applyRating(Rateable.convert(Math.round((float) sum / i)));
-        return this.product;
+        product = product.applyRating(Rateable.convert(Math.round((float) sum / reviews.size())));
+        products.put(product, reviews);
+        return product;
     }
 }
