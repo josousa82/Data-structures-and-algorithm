@@ -19,49 +19,69 @@ package ocp.labs.pm.app.shop;
 import ocp.labs.pm.data.Product;
 import ocp.labs.pm.data.ProductManager;
 import ocp.labs.pm.data.Rating;
+import ocp.labs.pm.sorters.Sorters;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Locale;
 
 /**
  * {@code} class represents an application that manages products
+ *
+ * @author oracle
  * @version 4.0
- *  @author oracle
  */
 public class Shop {
 
     public static void main(String[] args) {
+        var pt = "pt-PT";
+        var en = "en-GB";
+        ProductManager pm = new ProductManager(en);
 
-        ProductManager pm  = new ProductManager(Locale.UK);
+        pm.createProduct(101, "Tea", BigDecimal.valueOf(153.57), Rating.NOT_RATED);
+        pm.reviewProduct(101, Rating.FOUR_STAR, "Nice hot cup of tea.");
+        pm.reviewProduct(101, Rating.TWO_STAR, "Could be nicer");
+        pm.reviewProduct(101, Rating.FIVE_STAR, "Just a cup of tea.");
+        pm.reviewProduct(101, Rating.FOUR_STAR, "Bad cup of tea.");
+//        pm.printProductReport(101);
 
-        Product p1 = pm.createProduct(101, "Tea", BigDecimal.valueOf(153.57), Rating.NOT_RATED);
-        pm.printProductReport(p1);
-        pm.reviewProduct(p1, Rating.FOUR_STAR, "Nice hot cup of tea.");
-        pm.reviewProduct(p1, Rating.TWO_STAR, "Could be nicer");
-        pm.reviewProduct(p1, Rating.FIVE_STAR, "Just a cup of tea.");
-        pm.reviewProduct(p1, Rating.FOUR_STAR, "Bad cup of tea.");
-        pm.printProductReport(p1);
+//        pm.changeLocale(pt);
 
-        Product p2 = pm.createProduct(102, "Coffee", BigDecimal.valueOf(1.99), Rating.FOUR_STAR);
-        p2 = pm.reviewProduct(p2, Rating.FOUR_STAR, "Very good");
-        p2 = pm.reviewProduct(p2, Rating.THREE_STAR, "Fair");
-        p2 = pm.reviewProduct(p2, Rating.ONE_STAR, "Very Bad");
-        p2 = pm.reviewProduct(p2, Rating.NOT_RATED, "");
-        pm.printProductReport(p2);
+        pm.createProduct(102, "Coffee", BigDecimal.valueOf(1.99), Rating.FOUR_STAR);
+        pm.reviewProduct(102, Rating.FOUR_STAR, "Very good");
+        pm.reviewProduct(102, Rating.THREE_STAR, "Fair");
+        pm.reviewProduct(102, Rating.ONE_STAR, "Very Bad");
+        pm.reviewProduct(102, Rating.NOT_RATED, "");
+//        pm.printProductReport(102);
 
-        Product p3 = pm.createProduct(103, "Cake", BigDecimal.valueOf(1.99), Rating.FOUR_STAR, LocalDateTime.now().plusDays(2));
-        p3 = pm.reviewProduct(p3, Rating.FOUR_STAR, "good");
-        p3 = pm.reviewProduct(p3, Rating.ONE_STAR, "bad");
-        p3 = pm.reviewProduct(p3, Rating.ONE_STAR, "Very Bad");
-        p3 = pm.reviewProduct(p3, Rating.FIVE_STAR, "Very good");
-        pm.printProductReport(p3);
+//        pm.changeLocale(en);
+        pm.createProduct(103, "Cake", BigDecimal.valueOf(1.99), Rating.FOUR_STAR, LocalDateTime.now().plusDays(2));
+        pm.reviewProduct(103, Rating.FOUR_STAR, "good");
+        pm.reviewProduct(103, Rating.ONE_STAR, "bad");
+        pm.reviewProduct(103, Rating.ONE_STAR, "Very Bad");
+        pm.reviewProduct(103, Rating.FIVE_STAR, "Very good");
+//        pm.printProductReport(103);
 
 
+       pm.createProduct(104, "Cake Red Velvet", BigDecimal.valueOf(4.99), Rating.FIVE_STAR, LocalDateTime.now().plusDays(30));
+       pm.reviewProduct(104, Rating.ONE_STAR, "Not too good");
+       pm.reviewProduct(104, Rating.ONE_STAR, "Bad enough");
+       pm.reviewProduct(104, Rating.ONE_STAR, "Really bad");
+       pm.reviewProduct(104, Rating.THREE_STAR, "Not too bad");
 
-//        Product p4 = pm.createProduct( 104,  "Cake Red Velvet", BigDecimal.valueOf(4.99), Rating.FIVE_STAR, LocalDate.now());
+        Comparator<Product> sortByRating = (p1, p2) -> p2.getRating().ordinal() - p1.getRating().ordinal();
+        Comparator<Product> sortByPrice = Comparator.comparing(Product::getPrice);
+
+
+        pm.printProducts(sortByRating.thenComparing(sortByPrice));
+
+        pm.printProducts(Sorters.sortByRating.reversed());
+        pm.printProducts(Sorters.sortByPrice.reversed());
+
+
 //        Product p5 = p3.applyRating(Rating.THREE_STAR);
 //        Product p6 = pm.createProduct(106, "Chocolate", BigDecimal.valueOf(3.99), Rating.FIVE_STAR);
 //        Product p7 = pm.createProduct( 106,  "Chocolate", BigDecimal.valueOf(3.99), Rating.FIVE_STAR, LocalDate.now().plusDays(2));
@@ -90,7 +110,6 @@ public class Shop {
 //        System.out.println("p8 = " + p9);
 
 
-
 //        printProduct(p1);
 //        printProduct(p2);
 //        printProduct(p3);
@@ -98,16 +117,12 @@ public class Shop {
 //        printProduct(p5);
 
 
-
     }
 
     private static void printProduct(Product p1) {
         String formatPattern = "id: {0} - Product: {1} with price {2} and a discount of {3} has the final price of {4}.\nProduct Rating: {5}";
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.UK);
-        String messageFormatted = MessageFormat.format(formatPattern, p1.getId(), p1.getName(),
-                                                       currencyFormat.format(p1.getPrice()),
-                                                       currencyFormat.format(p1.getDiscount()),
-                                                       currencyFormat.format((p1.getPrice().subtract(p1.getDiscount()))), p1.getRating().getStars());
+        String messageFormatted = MessageFormat.format(formatPattern, p1.getId(), p1.getName(), currencyFormat.format(p1.getPrice()), currencyFormat.format(p1.getDiscount()), currencyFormat.format((p1.getPrice().subtract(p1.getDiscount()))), p1.getRating().getStars());
         System.out.println(messageFormatted);
     }
 }

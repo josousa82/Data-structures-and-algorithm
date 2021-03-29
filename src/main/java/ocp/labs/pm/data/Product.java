@@ -19,7 +19,6 @@ package ocp.labs.pm.data;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 /**
  * {@code Product} class represents properties and behaviours of
@@ -118,7 +117,7 @@ public abstract class Product implements Rateable<Product>{
         if (this == obj) return true;
         if (obj instanceof Product){
             final Product that = (Product) obj;
-            return this.id == that.getId() && Objects.equals(this.name, that.getName());
+            return this.id == that.getId(); //&& Objects.equals(this.name, that.getName());
         }
        return false;
     }

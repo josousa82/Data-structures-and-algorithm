@@ -30,30 +30,40 @@ import java.util.*;
  **/
 public class ProductManager {
 
-    private Locale locale;
-    private ResourceBundle resourceBundle;
-    private DateTimeFormatter dateTimeFormatter;
-    private NumberFormat currencyFormat;
+    private static Map<String, ResourceFormatter> formatters = Map.of(
+            "en-GB", new ResourceFormatter(Locale.UK),
+            "en-US", new ResourceFormatter(Locale.US),
+            "fr-FR", new ResourceFormatter(Locale.FRANCE),
+            "ru-RU", new ResourceFormatter(new Locale("ru", "RU")),
+            "pt-PT", new ResourceFormatter(new Locale("pt", "PT")),
+            "zh-CN", new ResourceFormatter(Locale.CHINA));
 
-//    private Product product;
-//    private Review[] reviews = new Review[5];
+    private ResourceFormatter formatter;
     private HashMap<Product, List<Review>> products = new HashMap<>();
 
-
-    public ProductManager(Locale l) {
-        this.locale = l;
-        resourceBundle = ResourceBundle.getBundle("resources", locale);
-        dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).localizedBy(locale);
-        currencyFormat = NumberFormat.getCurrencyInstance(locale);
-
+    public ProductManager(Locale locale) {
+        this(locale.toLanguageTag());
     }
 
-    public Product findProductById(int id){
+    public ProductManager(String languageTag) {
+        changeLocale(languageTag);
+    }
+
+    public static Set<String> getSupportedLocales(){
+        return formatters.keySet();
+    }
+
+    // change languageTag to enum returning string tags to restrict inputs
+    public void changeLocale(String languageTag){
+        formatter = formatters.getOrDefault(languageTag, formatters.get("en-GB"));
+    }
+
+    public Product findProductById(int id) {
         Set<Product> productsSet = products.keySet();
         Product result = null;
 
-        for (Product p : productsSet){
-            if(p.getId() == id){
+        for (Product p : productsSet) {
+            if (p.getId() == id) {
                 result = p;
                 break;
             }
@@ -61,33 +71,31 @@ public class ProductManager {
         return result;
     }
 
-    public void printProductReport(int id){
-        printProductReport(findProductById(id));
-    }
-
     public void printProductReport(Product product) {
         StringBuilder txt = new StringBuilder();
         List<Review> reviews = products.get(product);
 
-        txt.append(MessageFormat.format(resourceBundle.getString("product"), product.getName(),
-                                        currencyFormat.format(product.getPrice()), product.getRating().getStars(),
-                                        dateTimeFormatter.format(product.getBestBefore()))).append("\n");
+        txt.append(formatter.formatProduct(product)).append("\n");
 
-        if(reviews.isEmpty()) txt.append(resourceBundle.getString("no.reviews")).append("\n");
+        if (reviews.isEmpty()) txt.append(formatter.getText("no.reviews")).append("\n");
 
         Collections.sort(reviews);
 
-        reviews.forEach(review -> txt.append(MessageFormat.format(resourceBundle.getString("review"),
-                                                                  review.getRating().getStars(),
-                                                                  review.getComments())).append("\n"));
-//        for (Review review : reviews) {
-//            txt.append(MessageFormat.format(resourceBundle.getString("review"),
-//                                            review.getRating().getStars(),
-//                                            review.getComments())).append("\n");
-//        }
+        reviews.forEach(review -> txt.append(formatter.formatReview(review)).append("\n"));
 
         System.out.println(txt);
     }
+
+    public void printProducts(Comparator<Product> sorter){
+        List<Product> productList = new ArrayList<>(products.keySet());
+        productList.sort(sorter);
+        StringBuilder txt = new StringBuilder();
+        for (Product product : productList){
+            txt.append(formatter.formatProduct(product)).append("\n");
+        }
+        System.out.println(txt);
+    }
+
 
     public Product createProduct(int id, String name, BigDecimal price, Rating rating, LocalDateTime bestBefore) {
 
@@ -102,16 +110,17 @@ public class ProductManager {
         return product;
     }
 
-    public Product reviewProduct(int id, Rating rating, String comments){
+    public Product reviewProduct(int id, Rating rating, String comments) {
         return reviewProduct(findProductById(id), rating, comments);
     }
+
     // A more generic alternative  design of this app could  have used a type Rateable instead of product
     // for both instance variable and method argument (for example an abstract class could contain the implementation)
     // to enable the app to create reviews of any other objects that implement the Rateable interface
     public Product reviewProduct(Product product, Rating rating, String comments) {
 
         List<Review> reviews = products.get(product);
-        if(products.remove(product, reviews)){
+        if (products.remove(product, reviews)) {
 
         }
         reviews.add(new Review(rating, comments));
@@ -120,12 +129,53 @@ public class ProductManager {
 
 //      sum = reviews.stream().mapToInt(value -> value.getRating().ordinal()).sum();
 
-        for(Review review : reviews){
+        for (Review review : reviews) {
             sum += review.getRating().ordinal();
         }
 
         product = product.applyRating(Rateable.convert(Math.round((float) sum / reviews.size())));
         products.put(product, reviews);
         return product;
+    }
+
+    public void printProductReport(int id) {
+        printProductReport(findProductById(id));
+    }
+
+    private static class ResourceFormatter {
+
+        private Locale locale;
+        private ResourceBundle resourceBundle;
+        private DateTimeFormatter dateTimeFormatter;
+        private NumberFormat currencyFormat;
+
+        public ResourceFormatter(Locale locale) {
+            this.locale = locale;
+            resourceBundle = ResourceBundle.getBundle("translations", locale);
+            dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).localizedBy(locale);
+            currencyFormat = NumberFormat.getCurrencyInstance(locale);
+        }
+
+        private String formatProduct(Product product) {
+            return MessageFormat.format(
+                    resourceBundle.getString("product"),
+                    product.getName(),
+                    currencyFormat.format(product.getPrice()),
+                    product.getRating().getStars(),
+                    dateTimeFormatter.format(product.getBestBefore()));
+        }
+
+        private String formatReview(Review review) {
+            return MessageFormat.format(
+                    resourceBundle.getString("review"),
+                    review.getRating().getStars(),
+                    review.getComments());
+        }
+
+        private String getText(String key) {
+            return resourceBundle.getString(key);
+        }
+
+
     }
 }
