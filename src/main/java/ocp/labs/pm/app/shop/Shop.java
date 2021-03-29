@@ -16,9 +16,7 @@
 
 package ocp.labs.pm.app.shop;
 
-import ocp.labs.pm.data.Product;
-import ocp.labs.pm.data.ProductManager;
-import ocp.labs.pm.data.Rating;
+import ocp.labs.pm.data.*;
 import ocp.labs.pm.sorters.Sorters;
 
 import java.math.BigDecimal;
@@ -41,7 +39,7 @@ public class Shop {
         var en = "en-GB";
         ProductManager pm = new ProductManager(en);
 
-        pm.createProduct(101, "Tea", BigDecimal.valueOf(153.57), Rating.NOT_RATED);
+        pm.createProduct(TypeOfProduct.DRINK, 101, "Tea", BigDecimal.valueOf(153.57), Rating.NOT_RATED, LocalDateTime.now());
         pm.reviewProduct(101, Rating.FOUR_STAR, "Nice hot cup of tea.");
         pm.reviewProduct(101, Rating.TWO_STAR, "Could be nicer");
         pm.reviewProduct(101, Rating.FIVE_STAR, "Just a cup of tea.");
@@ -50,7 +48,8 @@ public class Shop {
 
 //        pm.changeLocale(pt);
 
-        pm.createProduct(102, "Coffee", BigDecimal.valueOf(1.99), Rating.FOUR_STAR);
+
+        pm.createProduct(TypeOfProduct.DRINK, 102, "Coffee", BigDecimal.valueOf(1.99), Rating.FOUR_STAR, LocalDateTime.now());
         pm.reviewProduct(102, Rating.FOUR_STAR, "Very good");
         pm.reviewProduct(102, Rating.THREE_STAR, "Fair");
         pm.reviewProduct(102, Rating.ONE_STAR, "Very Bad");
@@ -58,7 +57,7 @@ public class Shop {
 //        pm.printProductReport(102);
 
 //        pm.changeLocale(en);
-        pm.createProduct(103, "Cake", BigDecimal.valueOf(1.99), Rating.FOUR_STAR, LocalDateTime.now().plusDays(2));
+        pm.createProduct( TypeOfProduct.FOOD, 103, "Cake", BigDecimal.valueOf(1.99), Rating.FOUR_STAR, LocalDateTime.now().plusDays(1));
         pm.reviewProduct(103, Rating.FOUR_STAR, "good");
         pm.reviewProduct(103, Rating.ONE_STAR, "bad");
         pm.reviewProduct(103, Rating.ONE_STAR, "Very Bad");
@@ -66,55 +65,33 @@ public class Shop {
 //        pm.printProductReport(103);
 
 
-       pm.createProduct(104, "Cake Red Velvet", BigDecimal.valueOf(4.99), Rating.FIVE_STAR, LocalDateTime.now().plusDays(30));
+       pm.createProduct(TypeOfProduct.FOOD, 104, "Cake Red Velvet", BigDecimal.valueOf(4.99), Rating.FIVE_STAR, LocalDateTime.now().plusDays(1));
        pm.reviewProduct(104, Rating.ONE_STAR, "Not too good");
        pm.reviewProduct(104, Rating.ONE_STAR, "Bad enough");
        pm.reviewProduct(104, Rating.ONE_STAR, "Really bad");
        pm.reviewProduct(104, Rating.THREE_STAR, "Not too bad");
 
+        pm.createProduct(TypeOfProduct.FOOD,105, "Chocolate", BigDecimal.valueOf(3.99), Rating.FIVE_STAR, LocalDateTime.now().plusDays(2));
+        pm.reviewProduct(105, Rating.ONE_STAR, "Not too good");
+        pm.reviewProduct(105, Rating.ONE_STAR, "Really bad");
+
+        pm.createProduct(TypeOfProduct.DRINK,106, "Coca-Cola", BigDecimal.valueOf(2.79), Rating.FOUR_STAR, LocalDateTime.now().plusDays(2));
+        pm.reviewProduct(106, Rating.FIVE_STAR, "Tasty");
+        pm.reviewProduct(106, Rating.FIVE_STAR, "Really good");
+
         Comparator<Product> sortByRating = (p1, p2) -> p2.getRating().ordinal() - p1.getRating().ordinal();
         Comparator<Product> sortByPrice = Comparator.comparing(Product::getPrice);
 
-
-        pm.printProducts(sortByRating.thenComparing(sortByPrice));
-
-        pm.printProducts(Sorters.sortByRating.reversed());
-        pm.printProducts(Sorters.sortByPrice.reversed());
+        pm.printProducts(ProductFilters.filterAllDrink.and(ProductFilters.priceBelowTwo), sortByRating.thenComparing(sortByPrice));
+        pm.printProducts(ProductFilters.filterAllFood,  Sorters.sortByRating.reversed());
+        pm.printProducts(ProductFilters.priceBelowTwo,  Sorters.sortByPrice.reversed());
 
 
-//        Product p5 = p3.applyRating(Rating.THREE_STAR);
-//        Product p6 = pm.createProduct(106, "Chocolate", BigDecimal.valueOf(3.99), Rating.FIVE_STAR);
-//        Product p7 = pm.createProduct( 106,  "Chocolate", BigDecimal.valueOf(3.99), Rating.FIVE_STAR, LocalDate.now().plusDays(2));
-//        Product p8 = p4.applyRating(Rating.FIVE_STAR);
-//        Product p9 = p1.applyRating(Rating.TWO_STAR);
-//        System.out.println("p6.equals(p7) = " + p6.equals(p7));
 
-//        System.out.println("p1.bestBefore() = " + p1.getBestBefore());
-//        System.out.println("p3.bestBefore() = " + p7.getBestBefore());
-
-        // because besBefore is specific to food
-        // commented because bestBefore is defined in the abstract product and is inherited by all subtypes
-//        if(p3 instanceof Food){
-//            System.out.println("((Food) p3).getBestBefore() = " + ((Food) p3).getBestBefore());
-//        }
+        pm.getDiscounts().forEach((rating, discount) -> System.out.println(rating + "\t" + discount));
 
 
-//        System.out.println("p1 = " + p1);
-//        System.out.println("p2 = " + p2);
-//        System.out.println("p3 = " + p3);
-//        System.out.println("p4 = " + p4);
-//        System.out.println("p5 = " + p5);
-//        System.out.println("p6 = " + p6);
-//        System.out.println("p7 = " + p7);
-//        System.out.println("p8 = " + p8);
-//        System.out.println("p8 = " + p9);
 
-
-//        printProduct(p1);
-//        printProduct(p2);
-//        printProduct(p3);
-//        printProduct(p4);
-//        printProduct(p5);
 
 
     }

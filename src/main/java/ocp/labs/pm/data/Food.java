@@ -43,7 +43,7 @@ public final class Food extends Product {
 
     @Override
     public BigDecimal getDiscount() {
-        return (bestBefore.isEqual(LocalDateTime.now()))?super.getDiscount():BigDecimal.ZERO;
+        return (bestBefore.isEqual(LocalDateTime.now().plusDays(1)))?super.getDiscount():BigDecimal.ZERO;
     }
 
     @Override
