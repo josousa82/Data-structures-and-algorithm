@@ -156,15 +156,14 @@ public class ProductManager {
 
         Function<Product, String> ratingAsStarsStringForEach = product -> product.getRating().getStars();
         ToDoubleFunction<Product> toDouble = product -> product.getDiscount().doubleValue();
-
+        Function<Double, String> finisher = discount -> formatter.currencyFormat.format(discount);
 
 
         return products.keySet()
                 .stream()
                 .collect(Collectors.groupingBy(ratingAsStarsStringForEach,
                                             Collectors.collectingAndThen(
-                                                    Collectors.summingDouble(product -> product.getDiscount().doubleValue()),
-                                                       discount -> formatter.currencyFormat.format(discount))));
+                                                    Collectors.summingDouble(toDouble), finisher)));
     }
 
     private static class ResourceFormatter {

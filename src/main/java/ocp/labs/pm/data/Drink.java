@@ -35,7 +35,7 @@ public final class Drink extends Product {
     @Override
     public BigDecimal getDiscount() {
         LocalTime now = LocalTime.now();
-        return (now.isAfter(LocalTime.of(17, 30))
+        return (now.isAfter(LocalTime.of(6, 30))
                 && now.isBefore(LocalTime.of(21, 30)))
                 ? super.getDiscount(): BigDecimal.ZERO;
     }
