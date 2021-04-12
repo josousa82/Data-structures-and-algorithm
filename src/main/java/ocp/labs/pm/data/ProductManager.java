@@ -16,23 +16,37 @@
 
 package ocp.labs.pm.data;
 
+import ocp.labs.pm.data.exceptions.ProductManagerException;
+
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static java.lang.System.out;
 
 /**
  * Created by sousaJ on 20/03/2021
  * in package - ocp.labs.pm.data
  **/
 public class ProductManager {
+
+    private static final Logger logger = Logger.getLogger(ocp.labs.pm.data.ProductManager.class.getName());
+    private ResourceBundle config = ResourceBundle.getBundle("config/config");
+
+    private MessageFormat productFormat = new MessageFormat(config.getString("product.data.format"));
+    private MessageFormat reviewFormat = new MessageFormat(config.getString("review.data.format"));
 
     private static Map<String, ResourceFormatter> formatters = Map.of(
             "en-GB", new ResourceFormatter(Locale.UK),
@@ -62,12 +76,12 @@ public class ProductManager {
         formatter = formatters.getOrDefault(languageTag, formatters.get("en-GB"));
     }
 
-    public Product findProductById(int id) {
+    public Product findProductById(int id) throws ProductManagerException {
         return products.keySet()
                        .stream()
                        .filter(product -> product.getId() == id)
                        .findFirst()
-                       .orElseGet(null);
+                       .orElseThrow(() -> new ProductManagerException("Product cannot be null"));
     }
 
     public void printProductReport(Product product) {
@@ -89,7 +103,7 @@ public class ProductManager {
           // this solution is no good to work in parallel because it may corrupt the origin stream
 //        reviews.forEach(review -> txt.append(formatter.formatReview(review)).append("\n"));
 
-        System.out.println(txt);
+        out.println(txt);
     }
 
     public void printProducts(Predicate<Product> filter, Comparator<Product> sorter){
@@ -100,7 +114,7 @@ public class ProductManager {
                         .filter(filter)
                         .forEach(product -> txt.append(formatter.formatProduct(product)).append("\n"));
 
-        System.out.println(txt);
+        out.println(txt);
     }
 
     public Product  createProduct(TypeOfProduct typeOfProduct, int id, String name, BigDecimal price, Rating rating, LocalDateTime bestBefore){
@@ -123,8 +137,50 @@ public class ProductManager {
         return product;
     }
 
+    public void parseReview(String text)  {
+        try {
+            Object[] values = reviewFormat.parse(text);
+            reviewProduct(Integer.parseInt((String) values[0]),
+                          Rateable.convert(Integer.parseInt((String) values[1])),
+                          (String) values[2]);
+
+        } catch (ParseException | NumberFormatException e) {
+            logger.log(Level.WARNING, "Error parsing review: ".concat(text));
+//            throw new ProductManagerException("Unable to parse review");
+        }
+    }
+
+    public void parseProduct(String text){
+        try{
+            Object[] values = productFormat.parse(text);
+            int id = Integer.parseInt(((String) values[1]).trim());
+            String name = (String) values[2];
+            BigDecimal price = BigDecimal.valueOf(Double.parseDouble((String) values[3]));
+            Rating rating = Rateable.convert(Integer.parseInt((String) values[4]));
+            LocalDateTime bestBefore = LocalDateTime.parse((String) values[5]);
+
+            switch ((String) values[0]) {
+                case "D":
+                    createProduct(TypeOfProduct.DRINK,id, name, price, rating,bestBefore );
+                    break;
+                case "F":
+                    createProduct(TypeOfProduct.FOOD,id, name, price, rating,bestBefore);
+                    break;
+            }
+
+        } catch (ParseException | NumberFormatException | DateTimeParseException e) {
+            logger.log(Level.WARNING, "Error parsing product: ".concat(text), e.getStackTrace());
+
+        }
+    }
+
     public Product reviewProduct(int id, Rating rating, String comments) {
-        return reviewProduct(findProductById(id), rating, comments);
+        try {
+            return reviewProduct(findProductById(id), rating, comments);
+        } catch (ProductManagerException e) {
+            logger.log(Level.INFO, e.getMessage());
+        }
+        return null;
     }
 
     // A more generic alternative  design of this app could  have used a type Rateable instead of product
@@ -149,7 +205,11 @@ public class ProductManager {
     }
 
     public void printProductReport(int id) {
-        printProductReport(findProductById(id));
+        try {
+            printProductReport(findProductById(id));
+        } catch (ProductManagerException e) {
+            logger.log(Level.INFO, e.getMessage());
+        }
     }
 
     public  Map<String, String> getDiscounts() {
@@ -157,7 +217,6 @@ public class ProductManager {
         Function<Product, String> ratingAsStarsStringForEach = product -> product.getRating().getStars();
         ToDoubleFunction<Product> toDouble = product -> product.getDiscount().doubleValue();
         Function<Double, String> finisher = discount -> formatter.currencyFormat.format(discount);
-
 
         return products.keySet()
                 .stream()

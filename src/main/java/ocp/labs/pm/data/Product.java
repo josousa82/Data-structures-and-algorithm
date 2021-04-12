@@ -36,7 +36,7 @@ import java.time.LocalDateTime;
 // abstract classes don't have to implement the abstract methods from interface, however the concrete class
 // that implement the abstract class will have to implement all method signatures either from the abstract
 // class itself and interface that is implemented by the abstract class
-public abstract class Product implements Rateable<Product>{
+public abstract class Product implements Rateable<Product> {
 
     /**
      * A constant that defines a

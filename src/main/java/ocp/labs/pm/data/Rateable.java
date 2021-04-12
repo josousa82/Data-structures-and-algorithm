@@ -16,6 +16,8 @@
 
 package ocp.labs.pm.data;
 
+import java.io.Serializable;
+
 /**
  * Created by sousaJ on 20/03/2021
  * in package - ocp.labs.pm.data
@@ -33,7 +35,7 @@ package ocp.labs.pm.data;
 // by the concrete class.
 
 @FunctionalInterface
-public interface Rateable<T> {
+public interface Rateable<T> extends Serializable {
     public static final Rating DEFAULT_RATING = Rating.NOT_RATED;
 
     public static Rating convert(int stars){
