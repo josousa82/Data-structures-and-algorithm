@@ -16,11 +16,13 @@
 
 package ocp.labs.pm.data;
 
+import java.io.Serializable;
+
 /**
  * Created by sousaJ on 20/03/2021
  * in package - ocp.labs.pm.data
  **/
-public class Review implements Comparable<Review>{
+public class Review implements Comparable<Review>, Serializable {
 
     private Rating rating;
     private String comments;

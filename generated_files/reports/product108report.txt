@@ -1,0 +1,5 @@
+Whisky, Price: £53.57, Rating: ★★★★☆, Best Before: 16/04/2021
+Review: ★★★★★	Just a cup of Whisky.
+Review: ★★★★☆	Nice hot cup of Whisky.
+Review: ★★★★☆	Bad cup of Whisky.
+Review: ★★☆☆☆	Could be nicer

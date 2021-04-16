@@ -17,8 +17,17 @@
 package ocp.labs.pm.data;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.File;
+
+@ExtendWith(MockitoExtension.class)
 class ProductManagerTest {
+
+    @TempDir
+    File tempDirectory;
 
     @Test
     void printProductReport() {
@@ -34,5 +43,11 @@ class ProductManagerTest {
 
     @Test
     void reviewProduct() {
+    }
+
+    @Test
+    void loadReviews() {
+
+
     }
 }

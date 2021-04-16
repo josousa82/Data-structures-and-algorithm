@@ -15,8 +15,9 @@
  */
 
 package ocp.labs.pm.data;
+
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 /**
@@ -25,9 +26,9 @@ import java.time.LocalTime;
  **/
 public final class Drink extends Product {
 
-    LocalDateTime bestBefore;
+    LocalDate bestBefore;
 
-    Drink(int id, String name, BigDecimal price, Rating rating, LocalDateTime bestBefore) {
+    Drink(int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore) {
         super(id, name, price, rating);
         this.bestBefore = bestBefore;
     }

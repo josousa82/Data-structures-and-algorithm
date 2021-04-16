@@ -16,9 +16,10 @@
 
 package ocp.labs.pm.data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * {@code Product} class represents properties and behaviours of
@@ -36,7 +37,7 @@ import java.time.LocalDateTime;
 // abstract classes don't have to implement the abstract methods from interface, however the concrete class
 // that implement the abstract class will have to implement all method signatures either from the abstract
 // class itself and interface that is implemented by the abstract class
-public abstract class Product implements Rateable<Product> {
+public abstract class Product implements Rateable<Product>, Serializable {
 
     /**
      * A constant that defines a
@@ -78,8 +79,8 @@ public abstract class Product implements Rateable<Product> {
      */
 //    public abstract Product applyRating(Rating newRating);
 
-    public LocalDateTime getBestBefore(){
-        return LocalDateTime.now();
+    public LocalDate getBestBefore(){
+        return LocalDate.now();
     }
 
     public int getId() {

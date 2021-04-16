@@ -17,7 +17,7 @@
 package ocp.labs.pm.data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * Created by sousaJ on 20/03/2021
@@ -25,9 +25,9 @@ import java.time.LocalDateTime;
  **/
 public final class Food extends Product {
 
-    private LocalDateTime bestBefore;
+    private LocalDate bestBefore;
 
-    Food(int id, String name, BigDecimal price, Rating rating, LocalDateTime bestBefore) {
+    Food(int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore) {
         super(id, name, price, rating);
         this.bestBefore = bestBefore;
     }
@@ -37,13 +37,13 @@ public final class Food extends Product {
      *
      * @return the value of bestBefore
      */
-    public LocalDateTime getBestBefore() {
+    public LocalDate getBestBefore() {
         return bestBefore;
     }
 
     @Override
     public BigDecimal getDiscount() {
-        return (bestBefore.isEqual(LocalDateTime.now().plusDays(1)))?super.getDiscount():BigDecimal.ZERO;
+        return (bestBefore.isEqual(LocalDate.now().plusDays(1)))?super.getDiscount():BigDecimal.ZERO;
     }
 
     @Override
