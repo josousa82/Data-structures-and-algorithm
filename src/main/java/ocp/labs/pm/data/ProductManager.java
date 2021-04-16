@@ -18,9 +18,7 @@ package ocp.labs.pm.data;
 
 import ocp.labs.pm.data.exceptions.ProductManagerException;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -29,6 +27,7 @@ import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -134,6 +133,10 @@ public class ProductManager {
                         .forEach(product -> txt.append(formatter.formatProduct(product)).append("\n"));
 
         out.println(txt);
+    }
+
+    public void printProducts(){
+        products.keySet().forEach(product -> out.println(formatter.formatProduct(product)));
     }
 
     public Product  createProduct(TypeOfProduct typeOfProduct, int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore){
@@ -330,7 +333,57 @@ public class ProductManager {
                                                     Collectors.summingDouble(toDouble), finisher)));
     }
 
+    // swap memory dump data
+    public void dumpData(){
+        try {
+            if(Files.notExists(tempFolder)) Files.createDirectory(tempFolder);
+            var tempFile = tempFolder.resolve(MessageFormat.format(config.getString("temp.file"), Instant.now()));
 
+            try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(tempFile, StandardOpenOption.CREATE))){
+                out.writeObject(products);
+                products = new HashMap<>();
+
+                logger.log(Level.INFO, "Products data dumped, and memory is clean. {} ", loadLatestTempFile(tempFile).getFileName().toString());
+            }
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error dumping data: {}", e.getMessage());
+            e.getStackTrace();
+        }
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    public void restoreData(){
+        try(Stream<Path> paths = Files.list(tempFolder)){
+            Path tempFile = paths
+                    .filter(path -> path.getFileName().toString().endsWith("tmp"))
+                    .findFirst()
+                    .orElseThrow();
+
+            try(ObjectInputStream in = new ObjectInputStream(Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE))){
+                products = (HashMap)in.readObject();
+            }
+        }catch (Exception e){
+            logger.log(Level.SEVERE, "Error restoring the data: {}", e.getMessage());
+            e.getStackTrace();
+        }
+    }
+
+
+    private Path loadLatestTempFile(Path fileToLoad ) {
+        try(Stream<Path> paths = Files.list(tempFolder)) {
+            return paths.filter(path -> {
+                var name = path.getFileName().toString();
+                var instant = Instant.parse(name.substring(0, (name.length() - 4)));
+                return instant.isBefore(Instant.now());
+            }).findFirst().orElseThrow(ProductManagerException::new);
+        } catch (IOException | ProductManagerException e) {
+            logger.log(Level.WARNING, "Error getting latest temp file: {}", e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     private static class ResourceFormatter {
 
