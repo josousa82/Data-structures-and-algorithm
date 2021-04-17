@@ -16,6 +16,8 @@
 
 package ocp.labs.pm.data;
 
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -27,5 +29,7 @@ public interface ProductFilters {
     Predicate<Product> filterAllDrink = product -> product instanceof Drink;
     Predicate<Product> filterAllFood = product -> product instanceof Food;
     Predicate<Product> priceBelowTwo = product -> product.getPrice().floatValue() < 2;
+    Predicate<Product> nonNull = Objects::nonNull;
+    Comparator<Product> sortById = (o1, o2) -> o2.getId() - o1.getId();
 
 }
